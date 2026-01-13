@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎁 Рандомайзер пожеланий</title>
+    <meta name="description" content="Сканируйте QR-код, чтобы получить случайное пожелание!">
+    
+    <!-- Стили -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+        
+        h1 {
+            color: #4a6fa5;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .wish-box {
+            background: linear-gradient(to right, #e3f2fd, #f3e5f5);
+            border: 2px dashed #4a6fa5;
+            border-radius: 15px;
+            padding: 40px 30px;
+            margin: 30px 0;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .wish-text {
+            font-size: 1.8em;
+            line-height: 1.5;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .quote-icon {
+            font-size: 2.5em;
+            color: #4a6fa5;
+            opacity: 0.3;
+            position: absolute;
+        }
+        
+        .quote-left {
+            top: 15px;
+            left: 20px;
+        }
+        
+        .quote-right {
+            bottom: 15px;
+            right: 20px;
+            transform: rotate(180deg);
+        }
+        
+        .button-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(to right, #4a6fa5, #6a93cb);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 35px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(74, 111, 165, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(74, 111, 165, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        #shareBtn {
+            background: linear-gradient(to right, #38a169, #48bb78);
+        }
+        
+        .counter {
+            margin-top: 25px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .instructions {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #777;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .wish-text {
+                font-size: 1.5em;
+            }
+            
+            button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .button-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+    
+    <!-- Иконка для вкладки -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎁</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <h1>🎁 Рандомайзер пожеланий</h1>
+        <p class="subtitle">Сканируйте QR-код, чтобы получить случайное доброе пожелание!</p>
+        
+        <div class="wish-box">
+            <div class="quote-icon quote-left">"</div>
+            <div class="wish-text" id="wishText">Нажмите кнопку ниже, чтобы получить пожелание!</div>
+            <div class="quote-icon quote-right">"</div>
+        </div>
+        
+        <div class="button-container">
+            <button onclick="generateWish()">✨ Новое пожелание</button>
+            <button id="shareBtn" onclick="shareWish()">📤 Поделиться</button>
+        </div>
+        
+        <div class="counter">
+            Получено пожеланий: <span id="counter">0</span>
+        </div>
+        
+        <div class="instructions">
+            <p>Просто отсканируйте QR-код с этим сайтом, чтобы всегда иметь доступ к случайному пожеланию!</p>
+        </div>
+    </div>
+
+    <!-- Скрипт -->
+    <script>
+        // Массив с пожеланиями (можно редактировать!)
+        const wishes = [
+            "Пусть сегодня произойдет что-то чудесное!",
+            "Удачи во всех начинаниях!",
+            "Цените моменты спокойствия и гармонии.",
+            "Смелость открывает новые двери. Действуйте!",
+            "Пусть вас окружают добрые и искренние люди.",
+            "Улыбнитесь миру, и он улыбнется вам в ответ.",
+            "Сегодня идеальный день для новых открытий.",
+            "Доверяйте своему внутреннему голосу.",
+            "Пусть фортуна будет на вашей стороне.",
+            "Наслаждайтесь каждым мгновением жизни.",
+            "Ваши мечты сбудутся в самый подходящий момент.",
+            "Будьте открыты для неожиданных радостей.",
+            "Сегодняшний день подарит вам вдохновение.",
+            "Помните: вы обладаете всеми необходимыми качествами для успеха.",
+            "Пусть сегодняшний день будет наполнен светом и теплом.",
+            "Не бойтесь делать то, что делает вас счастливым.",
+            "Иногда самые маленькие шаги ведут к самым большим изменениям.",
+            "Сегодня вы найдете красоту в простых вещах.",
+            "У вас есть сила создавать свой собственный путь.",
+            "Верьте в себя, и другие поверят в вас.",
+            "Сегодняшний день принесет приятные сюрпризы.",
+            "Ваше доброе сердце притягивает хороших людей.",
+            "Каждая проблема - это возможность для роста.",
+            "Найдите время для того, что приносит вам радость.",
+            "Сегодня вы сделаете кого-то счастливым, даже не заметив этого.",
+            "Удача следует за теми, кто действует.",
+            "Ваш позитивный настрой изменит весь день к лучшему.",
+            "Сегодня вы ближе к своей цели, чем вчера.",
+            "Позвольте себе мечтать по-крупному.",
+            "Иногда нужно просто сделать глубокий вдох и улыбнуться."
+        ];
+        
+        // Счетчик показанных пожеланий
+        let counter = 0;
+        
+        // Функция для получения случайного пожелания
+        function generateWish() {
+            // Выбираем случайный индекс
+            const randomIndex = Math.floor(Math.random() * wishes.length);
+            
+            // Получаем пожелание
+            const randomWish = wishes[randomIndex];
+            
+            // Плавно скрываем текущий текст
+            const wishElement = document.getElementById('wishText');
+            wishElement.style.opacity = '0';
+            wishElement.style.transition = 'opacity 0.3s ease';
+            
+            // Через небольшой промежуток времени меняем текст и показываем
+            setTimeout(() => {
+                wishElement.textContent = randomWish;
+                wishElement.style.opacity = '1';
+                
+                // Увеличиваем счетчик и обновляем его отображение
+                counter++;
+                document.getElementById('counter').textContent = counter;
+                
+                // Сохраняем текущее пожелание для возможности поделиться
+                currentWish = randomWish;
+            }, 300);
+        }
+        
+        // Переменная для хранения текущего пожелания
+        let currentWish = '';
+        
+        // Функция для поделиться (работает на мобильных и в некоторых браузерах)
+        function shareWish() {
+            if (!currentWish) {
+                alert('Сначала получите пожелание!');
+                return;
+            }
+            
+            const shareText = `Мое пожелание на сегодня: "${currentWish}"\n\nПолучите свое пожелание по ссылке: ${window.location.href}`;
+            
+            // Проверяем, поддерживает ли браузер Web Share API
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Мое пожелание',
+                    text: shareText,
+                    url: window.location.href
+                })
+                .then(() => console.log('Успешно поделились'))
+                .catch((error) => console.log('Ошибка при попытке поделиться:', error));
+            } else {
+                // Если Web Share API не поддерживается, копируем в буфер обмена
+                navigator.clipboard.writeText(shareText)
+                    .then(() => {
+                        alert('Пожелание скопировано в буфер обмена! Теперь вы можете поделиться им в соцсетях или мессенджерах.');
+                    })
+                    .catch(err => {
+                        console.error('Ошибка при копировании: ', err);
+                        // Старый способ для старых браузеров
+                        const textArea = document.createElement('textarea');
+                        textArea.value = shareText;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        alert('Пожелание скопировано в буфер обмена!');
+                    });
+            }
+        }
+        
+        // Показываем первое пожелание при загрузке страницы
+        window.onload = function() {
+            // Небольшая задержка для эффекта
+            setTimeout(generateWish, 500);
+        };
+        
+        // Добавляем возможность обновлять пожелание по нажатию пробела
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space') {
+                generateWish();
+                event.preventDefault(); // Предотвращаем прокрутку страницы
+            }
+        });
+    </script>
+</body>
+</html>
